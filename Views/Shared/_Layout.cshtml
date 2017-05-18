@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+    <title>@ViewBag.Title</title>
+    <link href='@Url.Content("~/favicon.ico")' rel="icon" type="image/x-icon" />
+
+    <link rel="stylesheet" href='@Url.Content("~/Content/bootstrap.min.css")' />
+    <link rel="stylesheet" href='@Url.Content("~/Content/Header/header.css")' />
+
+    <link rel="stylesheet" href='@Url.Content("~/Content/Plugins/bootstrap-table.min.css")' />
+    @Scripts.Render(Url.Content("~/Scripts/jquery-2.2.3.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/bootstrap.min.js"))
+    @Scripts.Render(Url.Content("~/Content/Plugins/bootstrap-table.min.js"))
+
+    @RenderSection("plugins", false)
+</head>
+<body>
+    <div class="container-fluid" style="width:100%">
+        <div id="page-header">
+            <hr id="topHR" style="margin-top: 0px;" />
+            <div id="logoDiv">
+                <a href="http://jabilweb.corp.jabil.org/" style="cursor: pointer; float: left">
+                    <img src=@Url.Content("~/Content/Header/jabil_log.jpg") style="width: 180px; height: 48px; border: none" alt="JABIL" />
+                </a><span id="appName"><font color="Blue">SMT Reflow Profile Comparison System</font><font size="3">v1.0</font></span>
+                <div style="clear: both">
+                </div>
+            </div>
+            <nav class="animenu nav">
+                <button class="animenu__toggle">
+                    <span class="animenu__toggle__bar"></span>
+                </button>
+                <ul class="animenu__nav">
+                    <li>
+                        @Html.ActionLink("Home", "Index", "Home")
+                    </li>
+                    <li>
+                        <a href="#">Report</a>
+                        <ul class="animenu__nav__child">
+                            @Html.ActionLink("Report", "Report", "Home")
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <label class="userInfo" style="text-shadow: black 5px 5px 3px;" ><span class="glyphicon glyphicon-user"></span>@Util.Common.GetNamerByNTID(Util.Common.GetCurrentNTID(), "displayName")</label>
+        </div>
+        @RenderBody()
+        <hr />
+        <footer>
+            <div class="footer col-lg-12" style="height: 2%; background-color: gray; width: 100%; text-align: center">&copy;@DateTime.Now.Year  Developed By Jabil(Wuxi) Mfg Engineering Team</div>
+        </footer>
+    </div>
+    @Scripts.Render(Url.Content("~/Content/Header/header.js"))
+</body>
+</html>

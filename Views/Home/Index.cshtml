@@ -1,0 +1,203 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section plugins{
+    <link href='@Url.Content("~/Content/Plugins/fileinput.min.css")' rel="stylesheet" />
+    <script src='@Url.Content("~/Content/Plugins/fileinput.min.js")'></script>
+}
+<ol class="breadcrumb">
+    <li><a href="#">Home</a></li>
+    <li class="active">CSV</li>
+</ol>
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="row">
+                <div class="col-lg-2">
+                    <div class="col-lg-2">Step</div>
+                    <div class="col-lg-2"><input type="text" name="step" id="step" /></div>
+                </div>
+                <div class="col-lg-10">
+                    <div class="col-lg-3">
+                        <div class="col-lg-2">Group</div>
+                        <div class="col-lg-2"><input type="text" name="group" id="group" /></div>
+                    </div>
+                    <div class="col-lg-2"><input type="checkbox" id="target" value="1"/>target</div>
+                    <div class="col-lg-2  col-lg-offset-2"><input type="button" class="btn  btn-danger " id="submmit" value="InsertToDatabase" /></div>
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="col-lg-12"><input id="file-crv" name="file-csv" type="file" class="file file-loading"></div>
+                </div>
+            </div>
+        </div>
+        <div class="panel-body">
+            <table id="tabCSV"></table>
+        </div>
+    </div>
+}
+<script type="text/javascript">
+
+    initFileInput("file-crv", '@Url.Content("~/Home/postFileCSV")');
+    $('#tabCSV').bootstrapTable(
+               {
+                   data: [],
+                   striped: true,
+                   pagination: true,
+                   columns: [{
+                       field: 'step',
+                       title: 'step',
+
+                   }, {
+                       field: 'group',
+                       title: 'group'
+                   }, {
+                       field: 'line',
+                       title: 'tc#'
+                   }, {
+                       field: 'maxTemperature',
+                       title: 'maxTemperature',
+                   }, {
+                       field: 'elapseTime',
+                       title: 'elapseTime',
+                   }]
+               }
+               );
+
+
+
+    $('#file-crv').on('filepreupload', function (event, data, previewId, index) {
+        var form = data.form, files = data.files, extra = data.extra,
+            response = data.response, reader = data.reader;
+        if ($('#step').val() == "" | $('#group').val() == "") {
+            alert("step and group must be input!");
+            $('#file-crv').fileinput('clear');
+        }
+        else {
+            parCSV(files[0]);
+        }
+
+    });
+
+    //$('#file-crv').on('change', function (event) {
+    //    $('#tabCSV').bootstrapTable('removeAll');
+    //    resjs = null;
+    //});
+    //$('#file-crv').on('fileclear', function (event) {
+    //    $('#tabCSV').bootstrapTable('removeAll');
+    //    resjs = null;
+    //});
+
+
+    var resjs;//json
+    $('#submmit').on('click', function () {
+        $.ajax(
+            {
+                type: 'post',
+                //url: '/HOME/insertData?data=' + JSON.stringify(resjs) + '&target=' + $("input:checkbox:checked").val(),
+                url: '@Url.Content("~/HOME/insertData")'+'?data=' + JSON.stringify(resjs) + '&target=' + $("input:checkbox:checked").val(),
+                //contentType: "application/json",
+                //data: JSON.stringify(resjs),
+                //dataType: "json",
+                success: function (res) {
+                    window.location.href = '@Url.Content("~/HOME/Report")'
+                },
+                error: function () {
+                    alert("error insert into database");
+                }
+
+            }
+            );
+
+    });
+
+    function initFileInput(ctrlName, uploadUrl) {
+        var control = $('#' + ctrlName);
+        control.fileinput({
+            language: 'zh',
+            uploadUrl: uploadUrl,
+            allowedFileExtensions: ['csv'],
+            showUpload: true,
+            showCaption: false,
+            showRemove: true,
+            browseClass: "btn btn-primary",
+            maxFileCount: 1,
+            enctype: 'multipart/form-data'
+        });
+    };
+
+    function parCSV(file) {
+        var selectedFile = file//document.getElementById("#file-crv").files[0];//获取读取的File对象
+        var name = selectedFile.name;
+        var size = selectedFile.size;
+
+        var reader = new FileReader();
+        reader.readAsText(selectedFile);
+
+        reader.onload = function () {
+
+            var res = this.result.split(/\n/);
+            //console.log(res[1]);
+            var header;
+            var lineMax = [];
+            var lineFTime = [];
+            var lineSTime = [];
+            var elapseTime = [];
+            var flag = [];
+            for (var i = 1; i < res.length - 1; i++) {
+                if (i == 1) {
+                    header = res[i].split(",");
+
+                }
+                else {
+                    var body = res[i].split(",");
+     
+
+                    for (var j = 2; j < body.length; j++) {
+                        if (i == 2) {
+
+                            lineMax[j - 2] = parseFloat(body[j]);
+                            lineFTime[j - 2] = parseFloat(body[0]);
+                            lineSTime[j - 2] = parseFloat(body[0]);
+                            flag[j - 2] = 0;
+                   
+                        }
+                        else {
+                            if (parseFloat(body[j]) > lineMax[j - 2]) {
+                                lineMax[j - 2] = parseFloat(body[j]);
+                            }
+
+                            if (parseFloat(body[j]) >= 217 && flag[j - 2] == 0) {
+                                lineFTime[j - 2] = parseFloat(body[0]);
+                                flag[j - 2] = 1;
+                            }
+
+                            if (parseFloat(body[j]) < 217 && flag[j - 2] == 1) {
+                                lineSTime[j - 2] = parseFloat(body[0])
+                                flag[j - 2] = 2;
+                            }
+
+                            elapseTime[j - 2] = (lineSTime[j - 2] - lineFTime[j - 2]).toFixed(1);
+                        }
+                    }
+                }
+
+            }
+            var jsonData = "";
+            for (var i = 0; i < lineMax.length; i++) {
+                jsonData += '{"step":"' + $('#step').val() + '","group":"' + $('#group').val() + '","line":"L' + header[i + 2].trim().substr(1, 2) + '","maxTemperature":' +
+                    lineMax[i] + ',"elapseTime":' + elapseTime[i] + '},';
+            }
+            jsonData = "[" + jsonData.substr(0, jsonData.length - 1) + "]";;
+            resjs = JSON.parse(jsonData)
+            $('#tabCSV').bootstrapTable('load', resjs);
+           
+        };
+    }
+
+</script>

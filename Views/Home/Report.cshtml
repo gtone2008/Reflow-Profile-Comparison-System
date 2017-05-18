@@ -1,0 +1,171 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section plugins{
+    <script src='@Url.Content("~/Content/Plugins/bootstrap-table-export.js")'></script>
+    <script src='@Url.Content("~/Content/Plugins/tableExport.js")'></script>
+}
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div id="toolbar">
+            temperatureDIFF<input type="text" id="txtT" placeholder="temperature" />
+            elapseTimeDIFF<input type="text" id="txtE" placeholder="elapseTime" />
+            <button type="button" id="savaConfig" class="btn btn-default">
+                <i class="glyphicon glyphicon glyphicon-floppy-disk">保存设置</i>
+            </button>
+        </div>
+        <table id="tabAll"></table>
+    </div>
+</div>
+<script type="text/javascript">
+    $('#savaConfig').on('click', function () {
+        var boolNUM = false;
+        if (!isNaN($('#txtT').val()) && !isNaN($('#txtE').val()))
+        {
+            boolNUM = true;
+        }
+        if (boolNUM == true) {
+            $.ajax({
+                type: 'get',
+                url: '@Url.Content("~/HOME/setConfig")' + '?txtT=' + $('#txtT').val() + '&txtE=' + $("#txtE").val(),
+                success: function (res) {
+                    window.location.href = '@Url.Content("~/HOME/Report")';
+                },
+                error: function () {
+                    alert("error insert into database");
+                }
+            });
+        }
+        else {
+            alert('you must input number!');
+        }
+    });
+    function getConfig()
+    {
+        $.ajax({
+            type: 'get',
+            contentType: 'application/json',
+            dataType: "json",
+            url: '@Url.Content("~/HOME/getConfig")',
+            success: function (res) {
+                $('#txtT').val(res[0]['txtT']);
+                $('#txtE').val(res[0]['txtE']);
+            },
+            error: function () {
+                alert("get config from database error!");
+            }
+        });
+    }
+
+    $.ajax({
+        type: 'get',
+        url: '@Url.Content("~/HOME/getReport")',
+        contentType: 'application/json',
+        dataType: "json",
+        success: function (res) {
+            getConfig();
+            $('#tabAll').bootstrapTable(
+                          {
+                              data: res,
+                              search: true,
+                              showExport: true,
+                              toolbar: "#toolbar",
+                              columns: [{
+                                  field: 'step',
+                                  title: 'step',
+
+                              }, {
+                                  field: 'group',
+                                  title: 'group',
+                              }, {
+                                  field: 'line',
+                                  title: 'tc#'
+                              }, {
+                                  field: 'target1',
+                                  title: 'targetTemperature',
+                              },
+                               {
+                                   field: 'maxTemperature',
+                                   title: 'maxTemperature',
+                               },
+
+                               {
+                                   formatter: function (value, row) {
+                                       value = Math.abs((row['maxTemperature'] - row.target1).toFixed(1));
+                                       if (value > $('#txtT').val())
+                                           return '<p class="glyphicon glyphicon-remove" style="color:red">' + value + '</p>';
+                                       else
+                                           return '<p  class="glyphicon glyphicon-ok" style="color:black">' + value + '</p>';
+                                   },
+                                   title: 'temperatureDiff',
+                               },
+                              {
+                                  field: 'target2',
+                                  title: 'targetElapseTime',
+                              },
+                              {
+                                  field: 'elapseTime',
+                                  title: 'elapseTime',
+                              },
+                               {
+                                   formatter: function (value, row) {
+                                       value = Math.abs((row.elapseTime - row.target2).toFixed(1));
+                                       if (value > $('#txtE').val())
+                                           return '<p class="glyphicon glyphicon-remove" style="color:red">' + value + '</p>';
+                                       else
+                                           return '<p class="glyphicon glyphicon-ok" style="color:black">' + value + '</p>';
+                                   },
+                                   title: 'elapseTimeDiff',
+                               },
+                              ]
+                          }
+                          );
+            $('#tabAll').on('load-success.bs.table column-switch.bs.table page-change.bs.table search.bs.table', function () {
+                MergeCell('tabAll', 0, 0, 0);
+            });
+
+            MergeCell('tabAll', 0, 0, 0);
+            function MergeCell(tableId, startRow, endRow, col) {
+                var tb = document.getElementById(tableId);
+                if (col >= tb.rows[0].cells.length) {
+                    return;
+                }
+
+                if (col == 0) {
+                    endRow = tb.rows.length - 1;
+                }
+                for (var i = startRow; i < endRow; i++) {
+
+                    var subCol = tb.rows[0].cells.length - tb.rows[startRow].cells.length;
+
+                    if (tb.rows[startRow].cells[col - subCol].innerHTML == tb.rows[i + 1].cells[0].innerHTML) {
+
+                        tb.rows[i + 1].removeChild(tb.rows[i + 1].cells[0]);
+
+                        tb.rows[startRow].cells[col - subCol].rowSpan = (tb.rows[startRow].cells[col - subCol].rowSpan | 0) + 1;
+
+                        if (i == endRow - 1 && startRow != endRow) {
+                            MergeCell(tableId, startRow, endRow, col + 1);
+                        }
+                    } else {
+
+                        MergeCell(tableId, startRow, i, col + 1);
+
+                        startRow = i + 1;
+                    }
+                }
+            }
+
+
+
+
+
+
+        },
+
+        error: function (err) {
+            alert('error!');
+        }
+    });
+
+</script>
