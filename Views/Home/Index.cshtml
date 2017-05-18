@@ -194,6 +194,7 @@
                     lineMax[i] + ',"elapseTime":' + elapseTime[i] + '},';
             }
             jsonData = "[" + jsonData.substr(0, jsonData.length - 1) + "]";;
+            console.log(jsonData);
             resjs = JSON.parse(jsonData)
             $('#tabCSV').bootstrapTable('load', resjs);
            

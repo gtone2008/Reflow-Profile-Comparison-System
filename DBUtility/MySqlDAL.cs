@@ -113,8 +113,8 @@ namespace SMT_Reflow_Profile_Comparison_System.DBUtility.MySQLDAL
         public DataTable GetTarget(Models.reflow model)
         {
             string strSql;
-            strSql = "SELECT  target1, target2 FROM reflow where group='{0}' and line='{1}' ";
-            strSql = string.Format("strSql", model.group, model.line);
+            strSql = "SELECT  target1, target2 FROM reflow where `group`='{0}' and line='{1}' ";
+            strSql = string.Format(strSql, model.group, model.line);
             DataTable dt = MySqlHelper.ExecuteDataset(_connStr, strSql).Tables[0];
             return dt;
         }

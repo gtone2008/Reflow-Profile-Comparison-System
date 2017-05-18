@@ -65,6 +65,10 @@ namespace SMT_Reflow_Profile_Comparison_System.BLL
                     maxTemperature = ja1["maxTemperature"].ToString(),
                     elapseTime = ja1["elapseTime"].ToString(),
                 };
+                //if (target == "1")
+                //{
+                //    refmodle.step = "";
+                //}
 
                 if (!Exists(refmodle.target, refmodle.step, refmodle.group, refmodle.line))
                 {
@@ -77,8 +81,9 @@ namespace SMT_Reflow_Profile_Comparison_System.BLL
                     }
                     else
                     {
-                        refmodle.target1 = "";
-                        refmodle.target2 = "";
+                        DataTable tb = Idal.GetTarget(refmodle);
+                        refmodle.target1 = tb.Rows[0][0].ToString();
+                        refmodle.target2 = tb.Rows[0][1].ToString();
                     }
                     Add(refmodle);
                 }
@@ -92,8 +97,8 @@ namespace SMT_Reflow_Profile_Comparison_System.BLL
                     else
                     {
                         DataTable tb = Idal.GetTarget(refmodle);
-                        refmodle.target1 = tb.Columns[0].ToString();
-                        refmodle.target2 = tb.Columns[1].ToString();
+                        refmodle.target1 = tb.Rows[0][0].ToString();
+                        refmodle.target2 = tb.Rows[0][1].ToString();
                     }
                         Update(refmodle);
                 }

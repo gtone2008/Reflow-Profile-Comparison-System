@@ -130,7 +130,6 @@
     <Content Include="Content\Plugins\tableExport.js" />
     <Content Include="favicon.ico" />
     <Content Include="packages.config" />
-    <Content Include="PerfCenterCpl.ico" />
     <Content Include="Content\Plugins\fileinput.min.js" />
     <Content Include="Scripts\underscore.js" />
     <Content Include="Views\Web.config">
