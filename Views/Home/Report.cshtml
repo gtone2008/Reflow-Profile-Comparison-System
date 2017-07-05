@@ -2,8 +2,12 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section plugins{
+    <link rel="stylesheet" href='@Url.Content("~/Content/Plugins/spec.css")' />
     <script src='@Url.Content("~/Content/Plugins/bootstrap-table-export.js")'></script>
     <script src='@Url.Content("~/Content/Plugins/tableExport.js")'></script>
+    <script src='@Url.Content("~/Content/Plugins/bootstrap-table-editable.js")'></script>
+    <script src='@Url.Content("~/Content/Plugins/bootstrap-editable.js")'></script>
+    <script src='@Url.Content("~/Content/Plugins/spec.js")'></script>
 }
 <div class="panel panel-default">
     <div class="panel-body">
@@ -72,6 +76,9 @@
                                   search: true,
                                   showExport: true,
                                   toolbar: "#toolbar",
+                                  pagination: true,
+                                  pageSize: 15,
+                                  pageList: [15, 20, 40],
                                   columns: [{
                                       field: 'step',
                                       title: 'step',
@@ -82,35 +89,87 @@
                                   }, {
                                       field: 'line',
                                       title: 'tc#'
-                                  }, {
+                                  },
+                                  {
+                                      field: 'spec1',
+                                      title: 'Temperaturespec',
+                                      editable: {
+                                          title: 'Temperaturespec',
+                                          type: 'address',
+                                          display: function (value) {
+                                              $(this).text(value);
+                                          },
+                                          validate: function (value) {
+                                              if (value.min == '') return 'min is required!';
+                                              if (value.max == '') return 'max is required!';
+                                              if (parseFloat(value.max) < parseFloat(value.min)) return 'max is must greater than min!';
+                                          },
+                                      }
+                                  },
+                                  {
                                       field: 'target1',
                                       title: 'targetTemperature',
                                   },
                                    {
                                        field: 'maxTemperature',
                                        title: 'maxTemperature',
+                                       formatter: function (value, row) {
+                                           var spec1 = row.spec1;
+                                           var spec1min = parseFloat(spec1.substring(0, spec1.indexOf('-')));
+                                           var spec1max = parseFloat(spec1.substring(spec1.indexOf('-') + 1, spec1.length));
+                                           if (parseFloat(row.maxTemperature) < spec1min || parseFloat(row.maxTemperature) > spec1max)
+                                               return '<p class="glyphicon glyphicon-remove" style="color:red">' + row.maxTemperature + '</p>';
+                                           else
+                                               return '<p  class="glyphicon glyphicon-ok" style="color:black">' + row.maxTemperature + '</p>';
+                                       }
                                    },
 
                                    {
                                        formatter: function (value, row) {
-                                           value = Math.abs(parseFloat(row['maxTemperature']) - parseFloat(row.target1)).toFixed(1);
-                                           console.log(parseFloat($('#txtT').val()));
+                                           var xvalue = (parseFloat(row['maxTemperature']) - parseFloat(row.target1)).toFixed(1);
+                                           value = Math.abs(xvalue);
                                            if (value > parseFloat($('#txtT').val())) {
 
-                                               return '<p class="glyphicon glyphicon-remove" style="color:red">' + value + '</p>';
+                                               return '<p class="glyphicon glyphicon-remove" style="color:red">' + xvalue + '</p>';
                                            }
                                            else
-                                               return '<p  class="glyphicon glyphicon-ok" style="color:black">' + value + '</p>';
+                                               return '<p  class="glyphicon glyphicon-ok" style="color:black">' + xvalue + '</p>';
                                        },
                                        title: 'temperatureDiff',
                                    },
+                                   {
+                                       field: 'spec2',
+                                       title: 'TALSpec',
+                                       editable: {
+                                           title: 'TALSpec',
+                                           type: 'address',
+                                           display: function (value) {
+                                               $(this).text(value);
+                                           },
+                                           validate: function (value) {
+                                               if (value.min == '') return 'min is required!';
+                                               if (value.max == '') return 'max is required!';
+                                               if (parseFloat(value.max) < parseFloat(value.min)) return 'max is must greater than min!';
+                                           },
+                                       }
+                                   },
+
                                   {
                                       field: 'target2',
-                                      title: 'targetElapseTime',
+                                      title: 'targetTALTime',
                                   },
                                   {
                                       field: 'elapseTime',
-                                      title: 'elapseTime',
+                                      title: 'TALTime',
+                                      formatter: function (value, row) {
+                                          var spec2 = row.spec2;
+                                          var spec2min = parseFloat(spec2.substring(0, spec2.indexOf('-')));
+                                          var spec2max = parseFloat(spec2.substring(spec2.indexOf('-') + 1, spec2.length));
+                                          if (parseFloat(row.elapseTime) < spec2min || parseFloat(row.elapseTime) > spec2max)
+                                              return '<p class="glyphicon glyphicon-remove" style="color:red">' + row.elapseTime + '</p>';
+                                          else
+                                              return '<p  class="glyphicon glyphicon-ok" style="color:black">' + row.elapseTime + '</p>';
+                                      }
                                   },
                                    {
                                        formatter: function (value, row) {
@@ -120,15 +179,40 @@
                                            else
                                                return '<p class="glyphicon glyphicon-ok" style="color:black">' + value + '</p>';
                                        },
-                                       title: 'elapseTimeDiff',
+                                       title: 'TALTimeDiff',
                                    },
-                                  ]
+                                  ],
+                                  onEditableSave: function (field, row, oldValue, $el) {
+                                      var spec = null;
+                                      if (typeof (row['spec1']) == 'object') {
+                                          spec = 'a' + row.spec1.min + '-' + row.spec1.max;
+                                      }
+                                      if (typeof (row['spec2']) == 'object') {
+                                          spec = 'b' + row.spec2.min + '-' + row.spec2.max;
+                                      }
+                                      //console.log(JSON.stringify(row));
+                                      //alert(typeof(row['aaa']));
+                                      //alert($el.text());//oldValue
+                                      //alert(fieldIndex);
+                                      //window.location.href = "index.aspx";
+
+                                      var step = row['step'], group = row['group'], line = row['line'];
+                                      $.ajax({
+                                          type: 'get',
+                                          url: '@Url.Content("~/HOME/updateSpec")' + '?step=' + step + '&group=' + group + '&line=' + line + '&spec=' + spec,
+                                          success: function (res) {
+                                              window.location.href = '@Url.Content("~/HOME/Report")';
+                                          },
+                                          error: function () {
+                                              alert("error update spec into database");
+                                          }
+                                      });
+                                  }
                               }
                               );
                 $('#tabAll').on('load-success.bs.table column-switch.bs.table page-change.bs.table search.bs.table', function () {
                     MergeCell('tabAll', 0, 0, 0);
                 });
-
                 MergeCell('tabAll', 0, 0, 0);
             },
 

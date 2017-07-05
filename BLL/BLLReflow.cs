@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -100,7 +101,7 @@ namespace SMT_Reflow_Profile_Comparison_System.BLL
                         refmodle.target1 = tb.Rows[0][0].ToString();
                         refmodle.target2 = tb.Rows[0][1].ToString();
                     }
-                        Update(refmodle);
+                    Update(refmodle);
                 }
             }
         }
@@ -115,14 +116,14 @@ namespace SMT_Reflow_Profile_Comparison_System.BLL
             return JsonHelper.ToJson(dt);
         }
 
-        public void setConfig(string T,string E)
+        public void setConfig(string T, string E)
         {
-            Idal.Config(T,E);
+            Idal.Config(T, E);
             DataCache.DelCache("jsonConfig");
         }
 
         public string getConfig()
-        {         
+        {
             object objType = DataCache.GetCache("jsonConfig");
             if (objType == null)
             {
@@ -136,6 +137,21 @@ namespace SMT_Reflow_Profile_Comparison_System.BLL
                 { }
             }
             return objType.ToString();
+        }
+
+        /// <summary>
+        /// update spec1 ,spec2
+        /// </summary>
+        /// <param name="step"></param>
+        /// <param name="group"></param>
+        /// <param name="line"></param>
+        /// <param name="spec"></param>
+        public bool updateSpec(string step, string group, string line, string spec)
+        {
+            if (Idal.UpdateSpec(step, group, line, spec))
+                return true;
+            else
+                return false;
         }
 
         #endregion  ExtensionMethod

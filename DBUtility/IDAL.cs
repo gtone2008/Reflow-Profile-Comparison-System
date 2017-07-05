@@ -27,7 +27,15 @@ namespace SMT_Reflow_Profile_Comparison_System.DBUtility
         /// </summary>
         bool Update(Models.reflow model);
 
-
+        /// <summary>
+        /// update spec1 spec2 data
+        /// </summary>
+        /// <param name="step"></param>
+        /// <param name="group"></param>
+        /// <param name="line"></param>
+        /// <param name="spec"></param>
+        /// <returns></returns>
+        bool UpdateSpec(string step, string group, string line, string spec);
         /// <summary>
         /// 修改config
         /// </summary>

@@ -52,3 +52,4 @@ D:\PROJECT\SMT Reflow Profile Comparison System\SMT Reflow Profile Comparison Sy
 D:\PROJECT\SMT Reflow Profile Comparison System\SMT Reflow Profile Comparison System\bin\System.Web.WebPages.xml
 D:\PROJECT\SMT Reflow Profile Comparison System\SMT Reflow Profile Comparison System\bin\System.Web.WebPages.Deployment.xml
 D:\PROJECT\SMT Reflow Profile Comparison System\SMT Reflow Profile Comparison System\bin\System.Web.WebPages.Razor.xml
+D:\PROJECT\SMT Reflow Profile Comparison System\SMT Reflow Profile Comparison System\obj\Debug\SMT_Reflow_Profile_Comparison_System.csprojResolveAssemblyReference.cache

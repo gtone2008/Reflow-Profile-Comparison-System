@@ -105,7 +105,7 @@ namespace SMT_Reflow_Profile_Comparison_System.DBUtility.MySQLDAL
         public DataTable GetData()
         {
             string strSql;
-            strSql = "SELECT step, `group`, line, maxTemperature, elapseTime,target1,target2 FROM reflow order by step,`group` ";
+            strSql = "SELECT step, `group`, line, maxTemperature, elapseTime,target1,target2,spec1,spec2 FROM reflow order by step,`group` ";
             DataTable dt = MySqlHelper.ExecuteDataset(_connStr, strSql).Tables[0];
             return dt;
         }
@@ -150,6 +150,41 @@ namespace SMT_Reflow_Profile_Comparison_System.DBUtility.MySQLDAL
             strSql = "SELECT  txtT, txtE FROM config  ";
             DataTable dt = MySqlHelper.ExecuteDataset(_connStr, strSql).Tables[0];
             return dt;
+        }
+
+
+        /// <summary>
+        /// a spec1 b spec2
+        /// </summary>
+        /// <param name="step"></param>
+        /// <param name="group"></param>
+        /// <param name="line"></param>
+        /// <param name="spec"></param>
+        /// <returns></returns>
+        public bool UpdateSpec(string step, string group, string line, string spec)
+        {
+            var ab = spec[0];
+            var xx = spec.Substring(1);
+            //int x=xx.IndexOf('-');
+            //var min = xx.Substring(0, x);
+            //var max = xx.Substring(x + 1, xx.Length - x-1);
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append(" Update reflow set ");
+            if (ab == 'a')
+            {
+                //strSql.Append(" spec1='{\"min\":\""+min+"\",\"max\":\""+max+"\"}'");
+                strSql.Append(" spec1='"+xx+"'");
+            }
+            if (ab == 'b')
+            {
+                //strSql.Append(" spec2='{\"min\":\"" + min + "\",\"max\":\"" + max + "\"}'");
+                strSql.Append(" spec2='" + xx + "'");
+            }
+            strSql.Append(@" where step='"+ step + "' and `group`='"+ group + "' and line ='"+ line + "';");
+            if (MySqlHelper.ExecuteNonQuery(_connStr,strSql.ToString()) > 0)
+                return true;
+            else
+                return false;
         }
     }
 }

@@ -56,7 +56,19 @@ namespace SMT_Reflow_Profile_Comparison_System.Controllers
             {
                 return Content("false");
             }
-        }    
+        }
+
+        /// <summary>
+        /// ajax update spec data
+        /// </summary>
+        /// <param name="step"></param>
+        /// <param name="group"></param>
+        /// <param name="line"></param>
+        /// <param name="spec"></param>
+        public void updateSpec(string step,string group,string line,string spec)
+        {
+            bllref.updateSpec(step,group,line,spec);
+        }  
 
         /// <summary>
         /// target=1是比对数据
